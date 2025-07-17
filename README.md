@@ -1,16 +1,16 @@
 # Setting Up Nginx and Auto-Renewing SSL for NestJS on Amazon Linux EC2
 
-This guide details how to configure Nginx as a reverse proxy for a NestJS application on an Amazon Linux 2 EC2 instance, secure it with a free Let’s Encrypt SSL certificate, and enable automatic certificate renewal. The setup is tailored for the domain `examle.com`, with the NestJS app running on port 3000.
+This guide details how to configure Nginx as a reverse proxy for a NestJS application on an Amazon Linux 2 EC2 instance, secure it with a free Let’s Encrypt SSL certificate, and enable automatic certificate renewal. The setup is tailored for the domain `example.com`, with the NestJS app running on port 3000.
 
 ## Prerequisites
 
 - **EC2 Instance**: Amazon Linux 2, with SSH access and `sudo` privileges.
-- **Domain**: `examle.com` with an A record pointing to the EC2 instance’s public IP.
+- **Domain**: `example.com` with an A record pointing to the EC2 instance’s public IP.
 - **NestJS App**: Running on port 3000 (adjust if different).
 - **Security Group**: Allows inbound traffic on ports 80 (HTTP) and 443 (HTTPS).
 - **DNS**: Verify resolution with:
   ```bash
-  dig examle.com
+  dig example.com
   ```
 
 ## Step-by-Step Instructions
@@ -81,7 +81,7 @@ upstream nestjs_app {
 
 server {
     listen 80;
-    server_name examle.com;
+    server_name example.com;
 
     # Security headers
     add_header X-Frame-Options "SAMEORIGIN" always;
@@ -158,13 +158,13 @@ Note the path (e.g., `/usr/bin/certbot` or `/usr/local/bin/certbot`) for Step 8.
 ### 7. Obtain SSL Certificate
 Use Certbot to issue an SSL certificate and configure Nginx for HTTPS:
 ```bash
-sudo certbot --nginx -d examle.com --non-interactive --agree-tos --email mobeenikhtiar21@gmail.com --redirect
+sudo certbot --nginx -d example.com --non-interactive --agree-tos --email mobeenikhtiar21@gmail.com --redirect
 ```
 
 If the `certbot-nginx` plugin fails, use standalone mode:
 ```bash
 sudo systemctl stop nginx
-sudo certbot certonly --standalone -d examle.com --non-interactive --agree-tos --email mobeenikhtiar21@gmail.com
+sudo certbot certonly --standalone -d example.com --non-interactive --agree-tos --email mobeenikhtiar21@gmail.com
 sudo systemctl start nginx
 ```
 
@@ -178,10 +178,10 @@ upstream nestjs_app {
 
 server {
     listen 443 ssl;
-    server_name examle.com;
+    server_name example.com;
 
-    ssl_certificate /etc/letsencrypt/live/examle.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/examle.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_prefer_server_ciphers on;
     ssl_ciphers EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH;
@@ -217,7 +217,7 @@ server {
 
 server {
     listen 80;
-    server_name examle.com;
+    server_name example.com;
     return 301 https://\$host\$request_uri;
 }
 EOF
@@ -229,7 +229,7 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-Certificates are stored in `/etc/letsencrypt/live/examle.com/`.
+Certificates are stored in `/etc/letsencrypt/live/example.com/`.
 
 ### 8. Configure Auto-Renewal
 Install `cronie` for `crontab` support (not installed by default on Amazon Linux 2):
@@ -318,7 +318,7 @@ In the AWS EC2 console, ensure the security group allows:
 - HTTPS: TCP, port 443, source 0.0.0.0/0
 
 ### 10. Verify Setup
-- **Test HTTPS**: Open `https://examle.com` in a browser. Confirm a secure connection (green padlock) and NestJS app functionality.
+- **Test HTTPS**: Open `https://example.com` in a browser. Confirm a secure connection (green padlock) and NestJS app functionality.
 - **Check Certificate**: Verify it’s issued by Let’s Encrypt in browser certificate details.
 - **Check Logs**:
   ```bash
@@ -362,7 +362,7 @@ In the AWS EC2 console, ensure the security group allows:
 
 - **DNS Issues**:
   ```bash
-  dig examle.com
+  dig example.com
   ```
 
 - **NestJS Not Reachable**:
@@ -373,7 +373,7 @@ In the AWS EC2 console, ensure the security group allows:
 
 ## Notes
 - **NestJS Port**: If your app uses a port other than 3000, update `proxy_pass http://nestjs_app` in `/etc/nginx/conf.d/nestjs.conf`.
-- **Certificate Location**: Certificates are in `/etc/letsencrypt/live/examle.com/`.
+- **Certificate Location**: Certificates are in `/etc/letsencrypt/live/example.com/`.
 - **Alternative SSL in NestJS**: For direct SSL termination (not recommended), update `main.ts`:
   ```typescript
   import { NestFactory } from '@nestjs/core';
@@ -382,8 +382,8 @@ In the AWS EC2 console, ensure the security group allows:
 
   async function bootstrap() {
     const httpsOptions = {
-      key: fs.readFileSync('/etc/letsencrypt/live/examle.com/privkey.pem'),
-      cert: fs.readFileSync('/etc/letsencrypt/live/examle.com/fullchain.pem'),
+      key: fs.readFileSync('/etc/letsencrypt/live/example.com/privkey.pem'),
+      cert: fs.readFileSync('/etc/letsencrypt/live/example.com/fullchain.pem'),
     };
     const app = await NestFactory.create(AppModule, { httpsOptions });
     await app.listen(443);
@@ -397,4 +397,4 @@ In the AWS EC2 console, ensure the security group allows:
 - [Nginx Reverse Proxy for Node.js](https://www.nginx.com/resources/wiki/start/topics/examples/full/)
 - [Let’s Encrypt Documentation](https://letsencrypt.org/docs/)
 
-This setup ensures `https://examle.com` is secure with auto-renewing SSL certificates, replacing manual renewals with a robust, automated solution.
+This setup ensures `https://example.com` is secure with auto-renewing SSL certificates, replacing manual renewals with a robust, automated solution.
