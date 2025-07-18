@@ -132,16 +132,17 @@ sudo systemctl reload nginx
 ```
 
 ### 6. Install Certbot
-Install Certbot for Let’s Encrypt SSL certificates using `amazon-linux-extras` on Amazon Linux 2:
-```bash
-sudo amazon-linux-extras install epel -y
-sudo yum install -y certbot python2-certbot-nginx
-```
+Install Certbot to obtain and manage Let’s Encrypt SSL certificates.
+# Install EPEL repository
 
-If `amazon-linux-extras` fails or Certbot is unavailable, use `pip` as a fallback:
+```bas
+sudo amazon-linux-extras install epel -y || sudo dnf install epel-release -y
+```
+Note: this is not working at the moment, but skip it, it shouldn't be an issue if this is not being installed.
+
+# Install Certbot and Nginx plugin
 ```bash
-sudo yum install -y python2-pip
-sudo pip install certbot certbot-nginx
+sudo yum install -y certbot python3-certbot-nginx
 ```
 
 Verify installation:
